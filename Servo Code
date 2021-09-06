@@ -1,0 +1,72 @@
+#include <esp_now.h>
+#include <WiFi.h>
+#include <ESP32Servo.h>
+Servo myServo;
+
+int servoPin = 13;
+
+// Structure example to receive data
+// Must match the sender structure
+typedef struct struct_message {
+  String a;
+  int b;
+  String c;
+  int d;
+} struct_message;
+
+// Create a struct_message called myData
+struct_message myData;
+
+// callback function that will be executed when data is received
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&myData, incomingData, sizeof(myData));
+//  Serial.println("Bytes received: ");
+//  Serial.println(len);
+//  Serial.println(myData.a);
+  Serial.println(myData.b);
+//  Serial.println(myData.c);
+//  Serial.println(myData.d);
+}
+ 
+void setup() {
+  // Initialize Serial Monitor
+  Serial.begin(115200);
+ 
+  // Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
+
+  myServo.attach(servoPin);
+
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+ 
+  // get recv packer info
+  esp_now_register_recv_cb(OnDataRecv);
+}
+ CLAW_CODE
+
+void loop() {
+//int servoPos =0;
+// servoPos = (myData.b / 36);
+// Serial.print(servoPos);
+// myServo.write(servoPos);
+
+
+if (myData.b <= 475 )
+  {
+    Serial.println("less than 475");
+    myServo.write(150);
+    delay(1000);    
+  }
+  else
+  {
+    Serial.println("over 475  ");
+    myServo.write(20);
+    delay(1000);
+  }
+ 
+    delay(20);
+}
